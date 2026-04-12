@@ -1,6 +1,9 @@
 from fastapi import FastAPI
+import uvicorn
 app=FastAPI()
 
+
+# This file you will find all sessions of the tutorial.
 
 # ============================ First Session ============================
 
@@ -137,3 +140,47 @@ async def update_movie(movie_id: int, movie: MovieItem):
 
 # the main difference between POST and PUT is that POST is used to create a new resource, while PUT is used to update an existing resource.
 # In the context of the above code, the POST endpoint is used to create a new movie, while the PUT endpoint is used to update an existing movie based on its ID.
+
+
+# ============================= Fifth Session ============================
+
+# in fifth session we will learn about how to use pickle to save and load data, and how to use it in our FastAPI application.
+# We will also learn about the advantages of using pickle over json, and how to preserve the methods of a class when saving it to a file.
+
+# go to the avoid/json_w_r.py file to see how to use json to save and load data,
+# and then go to the prefered/pickle_thing.py file to see how to use pickle to save and load data.
+
+# i trained a really basic logistic regression model on the iris dataset, and saved it to a pickle file in the simple_model/model.py file.
+# You can go there to see how to do that, and then we will learn how to load that model in our FastAPI application and use it to make predictions.
+
+# also created a visualization.ipynb file in the simple_model directory, where we will visualize the iris dataset using matplotlib.
+
+# lets try this model out in the FastAPI application, we will create a new endpoint that takes in the features of the iris dataset and returns the predicted class.
+
+class input_data(BaseModel):
+    sepal_length: float
+    sepal_width: float
+    petal_length: float
+    petal_width: float
+
+classes_names = ["setosa", "versicolor", "virginica"]
+@app.post("/predict")
+async def predict(input_features: input_data):
+    import pickle
+    import os
+
+    # load the model from the pickle file
+    with open(os.path.join("simple_model", "model.pkl"), "rb") as f:
+        model = pickle.load(f)
+
+    # create a feature array from the input parameters
+    features = [[input_features.sepal_length, input_features.sepal_width, input_features.petal_length, input_features.petal_width]]
+
+    # make a prediction using the loaded model
+    prediction = model.predict(features)
+
+    return {"predicted_class": classes_names[prediction[0]]}
+
+# example url to test the predict endpoint:
+# http://localhost:8000/docs
+# then click on the POST /predict endpoint, then click on "Try it out", you will be able to input the features of the iris dataset and see the predicted class.
