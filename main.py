@@ -170,7 +170,7 @@ async def predict(input_features: input_data):
     import os
 
     # load the model from the pickle file
-    with open(os.path.join("simple_model", "model.pkl"), "rb") as f:
+    with open(os.path.join("simple_model", "model_LR.pkl"), "rb") as f:
         model = pickle.load(f)
 
     # create a feature array from the input parameters
