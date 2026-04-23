@@ -311,3 +311,30 @@ async def predict_v2(input_features: input_data, api_key_valid: bool = Depends(t
     prediction = model.predict(features)
 
     return {"predicted_class": classes_names[prediction[0]], "note": "You have made {} requests in the last minute. You can make {} more requests before the limit resets.".format(len(rate_limiter.user_requests["my_secret_api_key"]), rate_limiter.requests_per_minute - len(rate_limiter.user_requests["my_secret_api_key"]))}
+
+# ============================= Ninth Session ============================
+
+# in this session we will learn about how to use background tasks in FastAPI to perform time-consuming operations without blocking the main thread of the application.
+# We will implement a simple background task that simulates a long-running process, and we will see how to use it in our API endpoints to improve the responsiveness of our application.
+
+
+#  importing pre-trained model
+from nltk.sentiment import SentimentIntensityAnalyzer
+from fastapi import BackgroundTasks
+import time
+
+sia = SentimentIntensityAnalyzer()
+
+def process_sentiment(text: str):
+    # this function will be run in the background to process the sentiment of the input text
+    sentiment_scores = sia.polarity_scores(text)
+    print(f"Sentiment scores for '{text}': {sentiment_scores}")
+    print("Final sentiment:", "Positive" if sentiment_scores["compound"] > 0 else "Negative" if sentiment_scores["compound"] < 0 else "Neutral")
+    time.sleep(5) # simulating a long-running process
+
+
+@app.post("/sentiment")
+async def analyze_sentiment(text: str, background_tasks: BackgroundTasks):
+    # this endpoint will receive a text input and will trigger the background task to process the sentiment of the text
+    background_tasks.add_task(process_sentiment, text)
+    return {"message": "Sentiment analysis is being processed in the background. You will see the results in the console shortly."}
