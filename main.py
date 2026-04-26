@@ -338,3 +338,63 @@ async def analyze_sentiment(text: str, background_tasks: BackgroundTasks):
     # this endpoint will receive a text input and will trigger the background task to process the sentiment of the text
     background_tasks.add_task(process_sentiment, text)
     return {"message": "Sentiment analysis is being processed in the background. You will see the results in the console shortly."}
+
+# ============================= Tenth Session ============================
+
+# in this this session we will know how to update versions of our API without breaking the existing clients that are using the old version. 
+# We will implement versioning in our FastAPI application and see how to maintain backward compatibility while introducing new features and improvements in the newer versions of the API.
+
+# Question: Why do we need API versioning?
+
+# Answer: We need API versioning to introduce:
+
+# 1. new features
+# 2. performance improvements
+# 3. bug fixes
+# 4. updated ML models
+# 5. improved training data
+# 6. changed response formats
+
+# without breaking applications that still use the older API version.
+# Versioning allows old clients to continue working normally while giving new clients access to improved functionality.
+# This is especially important in machine learning systems because model behavior and outputs may change over time.
+
+# Question - When should we update the version of our API?
+
+# Answer:
+
+# 1. removing existing endpoints
+# 2. renaming endpoints
+# 3. changing request parameters
+# 4. changing response structure
+# 5. modifying prediction logic significantly
+# 6. updating the ML model in a way that changes outputs
+# 7. updating training data that affects recommendations or predictions
+
+@app.get("/v1/movies")
+async def get_movies_v1():
+    return {"movies": movies}
+
+
+@app.get("/v2/movies")
+async def get_movies_v2():
+    # in this version, we will return the movies sorted by rating in descending order
+    sorted_movies = sorted(movies, key=lambda x: x["rating"], reverse=True)
+    return {"movies": sorted_movies}
+
+# Clients using /v1/movies will continue working without any issue, while newer clients can use /v2/movies for improved functionality.
+# This is exactly the purpose of API versioning.
+
+
+# Improtant note:
+# If the change does not break compatibility (for example, adding an optional field), a new version may not be necessary.
+
+# for example.
+
+class movie_item(BaseModel):
+    id: int
+    title: str
+    genre: str
+    rating: float
+    # if new field is added, it should be optional to avoid breaking existing clients
+    date:str=None
